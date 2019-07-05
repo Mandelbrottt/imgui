@@ -16,3 +16,5 @@ Release
 MinSizeRel
 RelWithDebInfo
 *.xcodeproj
+bin/
+bin-int/
