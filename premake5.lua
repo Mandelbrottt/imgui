@@ -5,6 +5,10 @@ project "ImGui"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
+	includedirs {
+		"%{prj.location}"
+	}
+
 	files {
 		"imconfig.h",
 		"imgui.h",
@@ -15,7 +19,16 @@ project "ImGui"
 		"imstb_rectpack.h",
 		"imstb_textedit.h",
 		"imstb_truetype.h",
-		"imgui_demo.cpp"
+		"imgui_demo.cpp",
+
+		"imguizmo/ImCurveEdit.cpp",
+		"imguizmo/ImCurveEdit.h",
+		"imguizmo/ImGradient.cpp",
+		"imguizmo/ImGradient.h",
+		"imguizmo/ImGuizmo.cpp",
+		"imguizmo/ImGuizmo.h",
+		"imguizmo/ImSequencer.cpp",
+		"imguizmo/ImSequencer.cpp",
 	}
 	
 	filter "system:windows"
