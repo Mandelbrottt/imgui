@@ -30,10 +30,6 @@ project "ImGui"
 		"imguizmo/ImSequencer.cpp",
 		"imguizmo/ImSequencer.cpp",
 	}
-
-	defines {
-		"IMGUI_DEFINE_MATH_OPERATORS"
-	}
 	
 	filter "system:windows"
         systemversion "latest"
