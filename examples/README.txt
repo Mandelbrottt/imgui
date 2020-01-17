@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------
- dear imgui, v1.72 WIP
+ dear imgui, v1.75 WIP
 -----------------------------------------------------------------------
  examples/README.txt
  (This is the README file for the examples/ folder. See docs/ for more documentation)
@@ -36,6 +36,8 @@ You can find binaries of some of those example applications at:
  MISC COMMENTS AND SUGGESTIONS
 ---------------------------------------
 
+ - Read FAQ at http://dearimgui.org/faq
+
  - Please read 'PROGRAMMER GUIDE' in imgui.cpp for notes on how to setup Dear ImGui in your codebase.
    Please read the comments and instruction at the top of each file.
 
@@ -63,10 +65,10 @@ You can find binaries of some of those example applications at:
 Most the example bindings are split in 2 parts:
 
  - The "Platform" bindings, in charge of: mouse/keyboard/gamepad inputs, cursor shape, timing, windowing.
-   Examples: Windows (imgui_impl_win32.cpp), GLFW (imgui_impl_glfw.cpp), SDL2 (imgui_impl_sdl.cpp)
+   Examples: Windows (imgui_impl_win32.cpp), GLFW (imgui_impl_glfw.cpp), SDL2 (imgui_impl_sdl.cpp), etc.
 
  - The "Renderer" bindings, in charge of: creating the main font texture, rendering imgui draw data.
-   Examples: DirectX11 (imgui_impl_dx11.cpp), GL3 (imgui_impl_opengl3.cpp), Vulkan (imgui_impl_vulkan.cpp)
+   Examples: DirectX11 (imgui_impl_dx11.cpp), GL3 (imgui_impl_opengl3.cpp), Vulkan (imgui_impl_vulkan.cpp), etc.
 
  - The example _applications_ usually combine 1 platform + 1 renderer binding to create a working program.
    Examples: the example_win32_directx11/ application combines imgui_impl_win32.cpp + imgui_impl_dx11.cpp.
@@ -129,16 +131,32 @@ List of high-level Frameworks Bindings in this repository: (combine Platform + R
     imgui_impl_allegro5.cpp
     imgui_impl_marmalade.cpp
 
-Note that Dear ImGui works with Emscripten.
-The examples_emscripten/ app uses sdl.cpp + opengl3.cpp but other combinations are possible.
+Note that Dear ImGui works with Emscripten. The examples_emscripten/ app uses imgui_impl_sdl.cpp and
+imgui_impl_opengl3.cpp, but other combinations are possible.
+
 Third-party framework, graphics API and languages bindings are listed at:
 
     https://github.com/ocornut/imgui/wiki/Bindings
 
-    Languages: C, C#, ChaiScript, D, Go, Haxe, Java, Lua, Odin, Pascal, PureBasic, Python, Rust, Swift...
-    Frameworks: Cinder, Cocoa (OSX), Cocos2d-x, SFML, GML/GameMaker Studio, Irrlicht, Ogre, OpenSceneGraph,
-    openFrameworks, LOVE, NanoRT, Nim Game Lib, Qt3d, SFML, Unreal Engine 4...
-    Miscellaneous: Software Renderer, RemoteImgui, etc.
+    Languages:
+     C, C#, ChaiScript, CovScript, D, Go, Haxe/hxcpp, Java, JavaScript, Julia, Lua, Nim,
+     Odin, Pascal, PureBasic, Python, Ruby, Rust, Swift...
+
+    Frameworks:
+     Amethyst, bsf, Cinder, Cocoa2d-x, Diligent Engine, Flexium, GML/GameMaker Studio,
+     GTK3 + OpenGL, Irrlicht, Ogre, OpenSceneGraph/OSG, openFrameworks, Orx, LÖVE+LUA,
+     Magnum, NanoRT, Nim Game Lib, px_render, Qt, Qt3d, SFML, Sokol, Unreal Engine 4, vtk...
+
+    Miscellaneous: Software Renderer, RemoteImgui, imgui-ws, etc.
+
+Not sure which to use?
+Recommended platform/frameworks:
+
+    GLFW    https://github.com/glfw/glfw        Use imgui_impl_glfw.cpp
+    SDL2    https://www.libsdl.org              Use imgui_impl_sdl.cp
+    Sokol   https://github.com/floooh/sokol     Use util/sokol_imgui.h in Sokol repository.
+
+Those will allow you to create portable applications and will solve and abstract away many issues.
 
 
 ---------------------------------------
@@ -189,7 +207,7 @@ example_glfw_opengl2/
     GLFW + OpenGL2 example (legacy, fixed pipeline).
     = main.cpp + imgui_impl_glfw.cpp + imgui_impl_opengl2.cpp
     **DO NOT USE OPENGL2 CODE IF YOUR CODE/ENGINE IS USING MODERN OPENGL (SHADERS, VBO, VAO, etc.)**
-    **Prefer using OPENGL3 code (with gl3w/glew/glad, you can replace the OpenGL function loader)**
+    **Prefer using OPENGL3 code (with gl3w/glew/glad/glbindings, you can replace the OpenGL function loader)**
     This code is mostly provided as a reference to learn about Dear ImGui integration, because it is shorter.
     If your code is using GL3+ context or any semi modern OpenGL calls, using this renderer is likely to
     make things more complicated, will require your code to reset many OpenGL attributes to their initial
@@ -234,7 +252,7 @@ example_sdl_opengl2/
     SDL2 (Win32, Mac, Linux etc.) + OpenGL example (legacy, fixed pipeline).
     = main.cpp + imgui_impl_sdl.cpp + imgui_impl_opengl2.cpp
     **DO NOT USE OPENGL2 CODE IF YOUR CODE/ENGINE IS USING MODERN OPENGL (SHADERS, VBO, VAO, etc.)**
-    **Prefer using OPENGL3 code (with gl3w/glew/glad, you can replace the OpenGL function loader)**
+    **Prefer using OPENGL3 code (with gl3w/glew/glad/glbindings, you can replace the OpenGL function loader)**
     This code is mostly provided as a reference to learn about Dear ImGui integration, because it is shorter.
     If your code is using GL3+ context or any semi modern OpenGL calls, using this renderer is likely to
     make things more complicated, will require your code to reset many OpenGL attributes to their initial

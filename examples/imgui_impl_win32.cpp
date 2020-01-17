@@ -14,12 +14,24 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#include <XInput.h>
 #include <tchar.h>
+
+// Using XInput library for gamepad (with recent Windows SDK this may leads to executables which won't run on Windows 7)
+#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
+#include <XInput.h>
+#else
+#define IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT
+#endif
+#if defined(_MSC_VER) && !defined(IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT)
+#pragma comment(lib, "xinput")
+//#pragma comment(lib, "Xinput9_1_0")
+#endif
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2018-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2020-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2020-01-14: Inputs: Added support for #define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD/IMGUI_IMPL_WIN32_DISABLE_LINKING_XINPUT.
+//  2019-12-05: Inputs: Added support for ImGuiMouseCursor_NotAllowed mouse cursor.
 //  2019-05-11: Inputs: Don't filter value from WM_CHAR before calling AddInputCharacter().
 //  2019-01-17: Misc: Using GetForegroundWindow()+IsChild() instead of GetActiveWindow() to be compatible with windows created in a different thread or parent.
 //  2019-01-17: Inputs: Added support for mouse buttons 4 and 5 via WM_XBUTTON* messages.
@@ -41,7 +53,7 @@
 //  2016-11-12: Inputs: Only call Win32 ::SetCursor(NULL) when io.MouseDrawCursor is set.
 
 // Win32 Data
-static HWND                 g_hWnd = 0;
+static HWND                 g_hWnd = NULL;
 static INT64                g_Time = 0;
 static INT64                g_TicksPerSecond = 0;
 static ImGuiMouseCursor     g_LastMouseCursor = ImGuiMouseCursor_COUNT;
@@ -93,6 +105,7 @@ bool    ImGui_ImplWin32_Init(void* hwnd)
     io.KeyMap[ImGuiKey_Space] = VK_SPACE;
     io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
     io.KeyMap[ImGuiKey_Escape] = VK_ESCAPE;
+    io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
     io.KeyMap[ImGuiKey_A] = 'A';
     io.KeyMap[ImGuiKey_C] = 'C';
     io.KeyMap[ImGuiKey_V] = 'V';
@@ -135,6 +148,7 @@ static bool ImGui_ImplWin32_UpdateMouseCursor()
         case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
         case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
         case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND; break;
+        case ImGuiMouseCursor_NotAllowed:   win32_cursor = IDC_NO; break;
         }
         ::SetCursor(::LoadCursor(NULL, win32_cursor));
     }
@@ -200,13 +214,10 @@ static void ImGui_ImplWin32_UpdateMousePos()
                 io.MouseHoveredViewport = viewport->ID;
 }
 
-#ifdef _MSC_VER
-#pragma comment(lib, "xinput")
-#endif
-
 // Gamepad navigation mapping
 static void ImGui_ImplWin32_UpdateGamepads()
 {
+#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
     ImGuiIO& io = ImGui::GetIO();
     memset(io.NavInputs, 0, sizeof(io.NavInputs));
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
@@ -249,6 +260,7 @@ static void ImGui_ImplWin32_UpdateGamepads()
         #undef MAP_BUTTON
         #undef MAP_ANALOG
     }
+#endif // #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 }
 
 void    ImGui_ImplWin32_NewFrame()
@@ -383,7 +395,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
 // DPI handling
 // Those in theory should be simple calls but Windows has multiple ways to handle DPI, and most of them
 // require recent Windows versions at runtime or recent Windows SDK at compile-time. Neither we want to depend on.
-// So we dynamically select and load those functions to avoid dependencies. This is the scheme successfully 
+// So we dynamically select and load those functions to avoid dependencies. This is the scheme successfully
 // used by GLFW (from which we borrowed some of the code here) and other applications aiming to be portable.
 //---------------------------------------------------------------------------------------------------------
 // At this point ImGui_ImplWin32_EnableDpiAwareness() is just a helper called by main.cpp, we don't call it automatically.
@@ -580,7 +592,7 @@ static void ImGui_ImplWin32_ShowWindow(ImGuiViewport* viewport)
 
 static void ImGui_ImplWin32_UpdateWindow(ImGuiViewport* viewport)
 {
-    // (Optional) Update Win32 style if it changed _after_ creation. 
+    // (Optional) Update Win32 style if it changed _after_ creation.
     // Generally they won't change unless configuration flags are changed, but advanced uses (such as manually rewriting viewport flags) make this useful.
     ImGuiViewportDataWin32* data = (ImGuiViewportDataWin32*)viewport->PlatformUserData;
     IM_ASSERT(data->Hwnd != 0);
